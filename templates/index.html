@@ -80,6 +80,7 @@
             margin-bottom: 12px;
             background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -432,10 +433,10 @@
 
                 <div class="detections-list">
                     {% for det in detections %}
-                    <div class="detection-item" style="border-left-color: {{ det.color }};">
+                    <div class="detection-item" data-color="{{ det.color }}">
                         <div class="detection-header">
                             <div class="detection-label">
-                                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background-color:{{ det.color }};"></span>
+                                <span class="color-dot" data-color="{{ det.color }}" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%;"></span>
                                 {% if det.id == 'Global' %}
                                 [Analisis Global]
                                 {% elif det.id == 'Error' %}
@@ -474,11 +475,24 @@
     }
 
     // Scroll to results automatically after loading
-    {% if detection_done %}
     window.onload = function() {
-        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-    }
-    {% endif %}
+        const resultsElement = document.getElementById('results');
+        if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Apply colors to avoid inline style Jinja template syntax errors in CSS validator
+        document.querySelectorAll('[data-color]').forEach(function(el) {
+            const color = el.getAttribute('data-color');
+            if (color) {
+                if (el.classList.contains('detection-item')) {
+                    el.style.borderLeftColor = color;
+                } else if (el.classList.contains('color-dot')) {
+                    el.style.backgroundColor = color;
+                }
+            }
+        });
+    };
 </script>
 </body>
 </html>
